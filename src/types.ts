@@ -64,3 +64,38 @@ export interface RiskAnalysisResult {
   report: string; // markdown
   analyzedAt: string;
 }
+
+export interface DueDiligenceRequest {
+  query: string;
+  address?: string; // optional — if provided, risk pipeline also runs
+  chainId?: number;
+}
+
+export interface DueDiligenceResult {
+  type: 'due_diligence';
+  query: string;
+  address: string | null;
+  research: SynthesisResult;
+  risk: RiskAnalysisResult | null;
+  combinedReport: string;
+  analyzedAt: string;
+}
+
+export interface HyperliquidVaultTask {
+  vaultAddress: string;
+}
+
+export interface HyperliquidVaultResult {
+  vaultAddress: string;
+  name: string;
+  tvl: number;
+  apr: number;
+  leader: string;
+  followers: number;
+  maxFollowers: number;
+  commission: number;
+  badge: 'SAFE' | 'CAUTION' | 'DANGEROUS';
+  riskScore: number;
+  report: string;
+  analyzedAt: string;
+}

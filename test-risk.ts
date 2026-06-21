@@ -2,7 +2,7 @@
  * test-risk.ts — standalone risk agent test (no CROO network)
  * Run: npx ts-node --transpile-only test-risk.ts [address] [chainId]
  */
-import 'dotenv/config';
+import dotenv from 'dotenv'; dotenv.config({ override: true });
 import type { RiskAnalysisTask, RiskAnalysisResult } from './src/types';
 
 const ADDRESS = process.argv[2] ?? '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
@@ -19,16 +19,11 @@ interface EthTx { from: string; to: string; value: string; isError: string; func
 interface TokenTx { tokenSymbol: string; tokenName: string; contractAddress: string }
 interface ContractSource { ContractName: string; CompilerVersion: string; SourceCode: string; Proxy: string; Implementation: string }
 
-function explorerApiUrl(chainId: number): string {
-  if (chainId === 8453) return 'https://api.basescan.org/api';
-  if (chainId === 137) return 'https://api.polygonscan.com/api';
-  return 'https://api.etherscan.io/api';
-}
-
 async function fetchExplorer<T>(params: Record<string, string>, chainId: number): Promise<T | null> {
   const apiKey = process.env.ETHERSCAN_API_KEY;
   if (!apiKey) throw new Error('ETHERSCAN_API_KEY not set');
-  const url = new URL(explorerApiUrl(chainId));
+  const url = new URL('https://api.etherscan.io/v2/api');
+  url.searchParams.set('chainid', String(chainId));
   url.searchParams.set('apikey', apiKey);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
   try {
@@ -47,7 +42,10 @@ function extractJson(text: string): string {
   const stripped = text.replace(/^```(?:json)?\s*/m, '').replace(/```\s*$/m, '').trim();
   const start = stripped.indexOf('{');
   const end = stripped.lastIndexOf('}');
-  return start !== -1 && end > start ? stripped.slice(start, end + 1) : stripped;
+  const json = start !== -1 && end > start ? stripped.slice(start, end + 1) : stripped;
+  return json.replace(/"(?:[^"\\]|\\.)*"/g, (match) =>
+    match.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t'),
+  );
 }
 
 async function gatherAndPrint(address: string, chainId: number): Promise<string> {
@@ -117,20 +115,38 @@ async function analyzeRisk(task: RiskAnalysisTask): Promise<RiskAnalysisResult> 
   const prompt = `On-chain data:
 ${context}
 
-Analyze this address for risk factors:
-- EOA risks: phishing/drainer patterns, mixer/tumbler usage, suspicious high-value outflows, interaction with flagged contracts
-- Contract risks: unverified source code, centralized ownership, proxy upgrade risks, honeypot patterns, rug pull indicators (mint functions, blacklist functions, max tx limits)
-- General: high transaction failure rate, interaction with known scam tokens, anomalous patterns
+Analyze this address and produce a calibrated risk score. Use the following framework:
+
+POSITIVE / LOW-RISK SIGNALS (reduce score):
+- Verified source code: strong trust signal
+- Proxy pattern (e.g. FiatTokenProxy, TransparentUpgradeableProxy, EIP-1967) on a verified contract: NORMAL for major tokens — not inherently risky
+- Well-known contract naming conventions (FiatToken, USDC, USDT, WETH, UniswapV3Pool, etc.): treat as lower-risk unless other red flags exist
+- Established, widely-used standards (ERC-20, ERC-721 with verified source): positive signal
+
+NEUTRAL / CONTEXT-DEPENDENT:
+- Proxy pattern alone: neutral — only flag as risky if ALSO unverified, anonymous, or very recently deployed
+- Older compiler version: minor informational note, not a primary risk factor for audited contracts
+- Missing transaction history for a contract address: normal — contracts don't send txs, users do
+
+ACTUAL RED FLAGS (raise score significantly):
+- Unverified or missing source code on a contract
+- Contract deployed very recently (days/weeks ago) with no established usage
+- Suspicious or obfuscated naming
+- High transaction failure rate from an EOA
+- Known drainer/mixer/scam patterns
+- Mint functions with no supply caps, blacklist functions, or hidden owner controls in an unaudited contract
+- EOA with large outflows to mixers or flagged addresses
 
 Return a JSON object with exactly these fields:
 {
   "badge": "SAFE" | "CAUTION" | "DANGEROUS",
   "riskScore": <integer 0-100>,
-  "reasons": ["<specific risk factor 1>", "<specific risk factor 2>", ...],
+  "reasons": ["<specific, factual observation 1>", ...],
   "report": "<markdown risk report with ## Risk Summary, ## On-Chain Analysis, ## Risk Factors, ## Recommendations sections>"
 }
 
 Scoring guide: 0-30 → SAFE, 31-65 → CAUTION, 66-100 → DANGEROUS. Badge must match riskScore range.
+A verified, named, proxy-pattern stablecoin contract with no anomalous on-chain behaviour should score in the SAFE range.
 Return only valid JSON. No markdown fences.`;
 
   const apiKey = process.env.GROQ_API_KEY;
@@ -142,7 +158,7 @@ Return only valid JSON. No markdown fences.`;
     body: JSON.stringify({
       model: GROQ_MODEL,
       messages: [
-        { role: 'system', content: 'You are a blockchain security expert specializing in EVM chain risk analysis.' },
+        { role: 'system', content: 'You are a blockchain security expert specializing in EVM chain risk analysis. Your goal is accurate, calibrated risk assessment — not conservative over-scoring. Well-known, verified, audited contracts should score low. Reserve high scores for genuine threats.' },
         { role: 'user', content: prompt },
       ],
     }),

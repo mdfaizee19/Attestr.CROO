@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Attestr — Before you deposit, Attestr it</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue:   #0077B6;
+    --blue08: rgba(0,119,182,.08);
+    --blue16: rgba(0,119,182,.16);
+    --blue32: rgba(0,119,182,.32);
+    --white:  #ffffff;
+    --font-display: 'Syne', sans-serif;
+    --font-body:    'Inter', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--white);
+    color: var(--blue);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; text-decoration: none; }
+  .container { max-width: 1140px; margin: 0 auto; padding: 0 28px; }
+
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ticker-inner { animation: none; }
+    .marquee-inner { animation: none; }
+  }
+  @keyframes livepulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .35; transform: scale(.7); }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ── NAVBAR ── */
+  .navbar {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--white);
+    border-bottom: 1.5px solid var(--blue);
+  }
+  .navbar-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+  }
+  .navbar-logo {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--font-display);
+    font-weight: 800; font-size: 1.2rem; letter-spacing: -.02em;
+    color: var(--blue);
+  }
+  .nav-links {
+    display: flex; align-items: center; gap: 32px;
+    list-style: none;
+    font-size: .875rem; font-weight: 600;
+  }
+  .nav-links a { transition: opacity .15s; }
+  .nav-links a:hover { opacity: .6; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 22px;
+    background: var(--blue); color: var(--white);
+    font-family: var(--font-body); font-weight: 700; font-size: .875rem;
+    border: 2px solid var(--blue);
+    cursor: pointer; transition: background .15s, color .15s;
+    letter-spacing: .02em;
+  }
+  .btn:hover { background: var(--white); color: var(--blue); }
+  .btn-ghost {
+    background: var(--white); color: var(--blue);
+    border: 2px solid var(--blue);
+  }
+  .btn-ghost:hover { background: var(--blue); color: var(--white); }
+
+  /* ── HERO ── */
+  .hero { padding: 96px 0 0; border-bottom: 1.5px solid var(--blue); }
+  .hero-text { text-align: center; max-width: 820px; margin: 0 auto; }
+  .hero-eyebrow {
+    display: inline-block; margin-bottom: 28px;
+    font-size: .72rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
+    padding: 5px 14px; border: 1.5px solid var(--blue);
+  }
+  .hero-headline {
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 7vw, 6rem);
+    line-height: 1.0; letter-spacing: -.04em;
+    margin-bottom: 24px; color: var(--blue);
+  }
+  .hero-headline .light { font-weight: 400; font-style: italic; display: block; }
+  .hero-headline .heavy { font-weight: 800; display: block; }
+  .hero-sub {
+    font-size: 1.1rem; line-height: 1.7; opacity: .7;
+    margin-bottom: 40px; max-width: 480px; margin-left: auto; margin-right: auto;
+  }
+  .hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 72px; }
+
+  /* Ticker */
+  .ticker-wrap {
+    border-top: 1.5px solid var(--blue);
+    overflow: hidden; padding: 14px 0; background: var(--blue08);
+  }
+  .ticker-inner { display: flex; width: max-content; animation: ticker 36s linear infinite; }
+  .ticker-item {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: .78rem; font-weight: 600;
+    white-space: nowrap; padding: 0 40px;
+    border-right: 1.5px solid var(--blue32);
+    color: var(--blue); letter-spacing: .02em;
+  }
+  .ticker-safe { font-weight: 800; }
+  .ticker-risk { text-decoration: underline; text-underline-offset: 3px; }
+
+  /* ── CROO SPONSOR ── */
+  .croo-sponsor {
+    border-bottom: 1.5px solid var(--blue);
+    padding: 52px 0;
+  }
+  .croo-sponsor-inner {
+    display: grid; grid-template-columns: auto 1fr auto;
+    align-items: center; gap: 48px;
+  }
+  .croo-sponsor-label {
+    font-size: .65rem; font-weight: 700;
+    letter-spacing: .2em; text-transform: uppercase;
+    opacity: .45; margin-bottom: 14px;
+  }
+  .croo-tagline {
+    font-family: var(--font-display);
+    font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+    font-weight: 800; letter-spacing: -.03em; line-height: 1.2;
+    margin-bottom: 10px;
+  }
+  .croo-sub {
+    font-size: .88rem; line-height: 1.7; opacity: .6; max-width: 440px;
+  }
+  .croo-divider {
+    width: 1.5px; height: 80px; background: var(--blue32); flex-shrink: 0;
+  }
+
+  /* ── PROTOCOL STRIP ── */
+  .proto-strip { border-bottom: 1.5px solid var(--blue); padding: 24px 0; background: var(--blue08); }
+  .proto-inner { display: flex; align-items: center; justify-content: center; gap: 36px; flex-wrap: wrap; }
+  .proto-badge {
+    display: flex; align-items: center; gap: 8px;
+    font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  }
+  .proto-badge::before {
+    content: ''; display: block; width: 5px; height: 5px; border-radius: 50%; background: var(--blue);
+  }
+  .proto-divider { width: 1px; height: 18px; background: var(--blue32); }
+
+  /* ── SERVICES ── */
+  .services { padding: 88px 0; border-bottom: 1.5px solid var(--blue); }
+  .section-label {
+    font-size: .68rem; font-weight: 700;
+    letter-spacing: .2em; text-transform: uppercase; margin-bottom: 40px; opacity: .5;
+  }
+  .services-grid { display: grid; grid-template-columns: repeat(4, 1fr); border: 1.5px solid var(--blue); }
+  .service-card {
+    padding: 36px 28px; border-right: 1.5px solid var(--blue);
+    display: flex; flex-direction: column; transition: background .15s;
+  }
+  .service-card:last-child { border-right: none; }
+  .service-card:hover { background: var(--blue08); }
+  .service-icon { font-size: 1.4rem; margin-bottom: 20px; }
+  .service-name {
+    font-family: var(--font-display); font-size: 1rem; font-weight: 800;
+    letter-spacing: -.01em; margin-bottom: 10px; line-height: 1.2;
+  }
+  .service-desc { font-size: .82rem; line-height: 1.65; opacity: .65; flex: 1; margin-bottom: 24px; }
+  .service-price {
+    display: inline-block; font-size: .75rem; font-weight: 700;
+    font-family: 'SF Mono', monospace;
+    padding: 5px 10px; border: 1.5px solid var(--blue); letter-spacing: .04em; width: fit-content;
+  }
+
+  /* ── STATS ── */
+  .stats { border-bottom: 1.5px solid var(--blue); }
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .stat-cell { padding: 64px 40px; border-right: 1.5px solid var(--blue); text-align: center; }
+  .stat-cell:last-child { border-right: none; }
+  .stat-value {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 6vw, 5rem); font-weight: 800;
+    line-height: 1.0; letter-spacing: -.05em; margin-bottom: 10px;
+  }
+  .stat-label { font-size: .78rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; opacity: .5; }
+
+  /* ── HOW IT WORKS ── */
+  .how { padding: 88px 0; border-bottom: 1.5px solid var(--blue); }
+  .how-grid { display: grid; grid-template-columns: repeat(3, 1fr); border: 1.5px solid var(--blue); }
+  .how-step { padding: 40px 32px; border-right: 1.5px solid var(--blue); transition: background .15s; }
+  .how-step:last-child { border-right: none; }
+  .how-step:hover { background: var(--blue08); }
+  .step-num {
+    font-family: var(--font-display); font-size: 3.5rem; font-weight: 800;
+    letter-spacing: -.06em; line-height: 1; margin-bottom: 20px; opacity: .12;
+  }
+  .step-title { font-family: var(--font-display); font-size: 1.15rem; font-weight: 800; letter-spacing: -.02em; margin-bottom: 12px; }
+  .step-desc { font-size: .88rem; line-height: 1.7; opacity: .65; }
+
+  /* ── INTEGRATIONS ── */
+  .integrations { padding: 88px 0; border-bottom: 1.5px solid var(--blue); }
+  .integrations-grid { display: grid; grid-template-columns: repeat(3, 1fr); border: 1.5px solid var(--blue); }
+  .integration-card {
+    padding: 36px 32px; border-right: 1.5px solid var(--blue);
+    display: flex; flex-direction: column; transition: background .15s;
+  }
+  .integration-card:last-child { border-right: none; }
+  .integration-card:hover { background: var(--blue08); }
+  .integration-logo { margin-bottom: 24px; display: flex; align-items: center; }
+  .integration-name {
+    font-family: var(--font-display); font-size: 1.1rem; font-weight: 800;
+    letter-spacing: -.02em; margin-bottom: 10px;
+  }
+  .integration-desc { font-size: .84rem; line-height: 1.65; opacity: .65; flex: 1; margin-bottom: 20px; }
+  .integration-steps { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .integration-steps li {
+    font-size: .75rem; font-weight: 600; opacity: .55;
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .integration-steps li::before { content: '→'; flex-shrink: 0; opacity: .6; }
+
+  /* ── COMMUNITY ── */
+  .community { padding: 88px 0; border-bottom: 1.5px solid var(--blue); }
+  .community-grid { display: grid; grid-template-columns: repeat(2, 1fr); border: 1.5px solid var(--blue); }
+  .community-card {
+    padding: 48px 40px; border-right: 1.5px solid var(--blue);
+    display: flex; flex-direction: column; transition: background .15s;
+  }
+  .community-card:last-child { border-right: none; }
+  .community-card:hover { background: var(--blue08); }
+  .community-logo { margin-bottom: 28px; }
+  .community-name {
+    font-family: var(--font-display); font-size: 1.3rem; font-weight: 800;
+    letter-spacing: -.03em; margin-bottom: 12px;
+  }
+  .community-desc { font-size: .88rem; line-height: 1.75; opacity: .65; flex: 1; margin-bottom: 28px; }
+  .community-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
+  .community-tag { font-size: .7rem; font-weight: 700; padding: 4px 10px; border: 1.5px solid var(--blue); letter-spacing: .06em; }
+
+  /* ── LOGO SCROLL ── */
+  .logo-scroll { border-bottom: 1.5px solid var(--blue); padding: 28px 0; overflow: hidden; }
+  .marquee-inner { display: flex; width: max-content; animation: marquee 20s linear infinite; align-items: center; }
+  .marquee-item { padding: 0 48px; border-right: 1.5px solid var(--blue32); display: flex; align-items: center; }
+
+  /* ── MCP ── */
+  .mcp-grid { display: grid; grid-template-columns: 1fr 1fr; border: 1.5px solid var(--blue); }
+  .mcp-left { padding: 48px 40px; border-right: 1.5px solid var(--blue); }
+  .mcp-right { padding: 40px; background: var(--blue08); }
+  .mcp-heading {
+    font-family: var(--font-display); font-size: 1.5rem; font-weight: 800;
+    letter-spacing: -.03em; margin-bottom: 16px; line-height: 1.2;
+  }
+  .mcp-desc { font-size: .9rem; line-height: 1.75; opacity: .65; margin-bottom: 28px; max-width: 340px; }
+  .code-label { font-size: .65rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; opacity: .5; margin-bottom: 14px; }
+  pre {
+    font-family: 'SF Mono', 'Fira Code', monospace; font-size: .8rem; line-height: 1.8;
+    color: var(--blue); white-space: pre-wrap; word-break: break-word; margin-bottom: 20px;
+  }
+  .compat-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  .compat-tag { font-size: .72rem; font-weight: 700; padding: 4px 10px; border: 1.5px solid var(--blue); letter-spacing: .06em; }
+
+  /* ── FOOTER ── */
+  .footer { padding: 48px 0 40px; }
+  .footer-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px; }
+  .footer-brand { font-family: var(--font-display); font-weight: 800; font-size: 1rem; letter-spacing: -.02em; }
+  .footer-brand a { display: flex; align-items: center; gap: 9px; }
+  .footer-links { display: flex; gap: 28px; list-style: none; font-size: .82rem; font-weight: 600; opacity: .55; }
+  .footer-links a:hover { opacity: 1; }
+  .footer-copy {
+    font-size: .75rem; opacity: .4; font-weight: 500; letter-spacing: .02em; width: 100%;
+    margin-top: 32px; padding-top: 24px;
+    border-top: 1px solid var(--blue32);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  }
+  .footer-sponsors { display: flex; align-items: center; gap: 16px; margin-top: 24px; width: 100%; }
+  .footer-sponsors-label { font-size: .65rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; opacity: .4; white-space: nowrap; }
+  .footer-sponsor-logos { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1000px) {
+    .croo-sponsor-inner { grid-template-columns: 1fr; gap: 24px; }
+    .croo-divider { display: none; }
+    .integrations-grid { grid-template-columns: 1fr; }
+    .integration-card { border-right: none; border-bottom: 1.5px solid var(--blue); }
+    .integration-card:last-child { border-bottom: none; }
+    .community-grid { grid-template-columns: 1fr; }
+    .community-card { border-right: none; border-bottom: 1.5px solid var(--blue); }
+    .community-card:last-child { border-bottom: none; }
+  }
+  @media (max-width: 900px) {
+    #vault-analysis [style*="grid-template-columns:repeat(3"] { grid-template-columns: 1fr !important; }
+    #vault-analysis [style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+    #mcp-tools [style*="grid-template-columns:260px"] { grid-template-columns: 1fr !important; }
+    #mcp-tools [style*="border-right:1.5px solid var(--blue)"] { border-right: none !important; border-bottom: 1.5px solid var(--blue) !important; }
+    #setup [style*="grid-template-columns:repeat(3"] { grid-template-columns: 1fr !important; }
+    #setup [style*="grid-template-columns:repeat(3"] > div { border-right: none !important; border-bottom: 1.5px solid var(--blue); }
+    #setup [style*="grid-template-columns:repeat(3"] > div:last-child { border-bottom: none; }
+    .services-grid { grid-template-columns: repeat(2, 1fr); }
+    .service-card:nth-child(2) { border-right: none; }
+    .service-card:nth-child(3) { border-top: 1.5px solid var(--blue); }
+    .service-card:nth-child(4) { border-top: 1.5px solid var(--blue); border-right: none; }
+    .how-grid { grid-template-columns: 1fr; }
+    .how-step { border-right: none; border-bottom: 1.5px solid var(--blue); }
+    .how-step:last-child { border-bottom: none; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .stat-cell { border-right: none; border-bottom: 1.5px solid var(--blue); }
+    .stat-cell:last-child { border-bottom: none; }
+    .mcp-grid { grid-template-columns: 1fr; }
+    .mcp-left { border-right: none; border-bottom: 1.5px solid var(--blue); }
+    .nav-links { display: none; }
+  }
+  @media (max-width: 600px) {
+    .services-grid { grid-template-columns: 1fr; }
+    .service-card { border-right: none; border-bottom: 1.5px solid var(--blue); }
+    .service-card:last-child { border-bottom: none; }
+    .proto-inner { gap: 16px; }
+    .hero { padding-top: 56px; }
+  }
+
+  :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+</style>
+</head>
+<body>
+
+<!-- TOP LOGO TICKER -->
+<div style="
+  border-top: 1.5px solid #0077B6;
+  border-bottom: 1.5px solid #0077B6;
+  background: #fff;
+  overflow: hidden;
+  padding: 14px 0;
+  position: relative;
+" aria-hidden="true">
+  <div style="display:flex; width:max-content; animation: marquee 22s linear infinite;">
+
+    <!-- Set 1 -->
+    <div style="display:flex; align-items:center; gap:0;">
+
+      <div style="display:flex; align-items:center; gap:10px; padding:0 40px; border-right:1px solid rgba(0,119,182,.2);">
+        <!-- Claude Code asterisk-in-box -->
+        <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+          <rect x="4" y="4" width="92" height="92" rx="18" fill="#D97757" opacity=".12"/>
+          <rect x="4" y="4" width="92" height="92" rx="18" stroke="#D97757" stroke-width="3"/>
+          <g stroke="#D97757" stroke-width="11" stroke-linecap="round">
+            <line x1="50" y1="16" x2="50" y2="84"/>
+            <line x1="16" y1="35" x2="84" y2="65"/>
+            <line x1="84" y1="35" x2="16" y2="65"/>
+          </g>
+        </svg>
+        <span style="font-family:'Syne',sans-serif; font-weight:800; font-size:.9rem; color:#D97757; letter-spacing:-.01em; white-space:nowrap;">Claude Code</span>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:10px; padding:0 40px; border-right:1px solid rgba(0,119,182,.2);">
+        <!-- Cursor 3D cube -->
+        <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+          <polygon points="50,6 94,29 50,52 6,29" fill="#3d3d3d"/>
+          <polygon points="6,29 50,52 50,94 6,71" fill="#1a1a1a"/>
+          <polygon points="94,29 50,52 50,94 94,71" fill="#2a2a2a"/>
+        </svg>
+        <span style="font-family:'Syne',sans-serif; font-weight:800; font-size:.9rem; color:#1a1a1a; letter-spacing:-.01em; white-space:nowrap;">Cursor</span>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:10px; padding:0 40px; border-right:1px solid rgba(0,119,182,.2);">
+        <!-- Hyperliquid barbell H -->
+        <svg width="28" height="22" viewBox="0 0 140 100" fill="none">
+          <rect x="0"  y="10" width="36" height="80" rx="18" fill="#00C2BA"/>
+          <rect x="104" y="10" width="36" height="80" rx="18" fill="#00C2BA"/>
+          <rect x="0"  y="38" width="140" height="24" rx="12" fill="#00C2BA"/>
+        </svg>
+        <span style="font-family:'Syne',sans-serif; font-weight:800; font-size:.9rem; color:#00C2BA; letter-spacing:-.01em; white-space:nowrap;">Hyperliquid</span>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:10px; padding:0 40px; border-right:1px solid rgba(0,119,182,.2);">
+        <!-- CROO green badge -->
+        <svg width="48" height="22" viewBox="0 0 280 104" fill="none">
+          <rect width="280" height="104" rx="8" fill="#5CB338"/>
+          <text x="140" y="74" text-anchor="middle" font-family="Arial Black,sans-serif" font-weight="900" font-size="64" fill="#000" letter-spacing="-2">CROO</text>
+        </svg>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:10px; padding:0 40px; border-right:1px solid rgba(0,119,182,.2);">
+        <!-- Claude asterisk -->
+        <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+          <g stroke="#D97757" stroke-width="13" stroke-linecap="round">
+            <line x1="50" y1="9" x2="50" y2="91"/>
+            <line x1="9" y1="30" x2="91" y2="70"/>
+            <line x1="91" y1="30" x2="9" y2="70"/>
+          </g>
+        </svg>
+        <span style="font-family:'Syne',sans-serif; font-weight:800; font-size:.9rem; color:#D97757; letter-spacing:-.01em; white-space:nowrap;">Claude</span>
+      </div>
+
+    </div>
+
+    <!-- Set 2 (exact duplicate for seamless loop) -->
+    <div style="display:flex; align-items:center; gap:0;">
+
+      <div style="display:flex; align-items:center; gap:10px; padding:0 40px; border-right:1px solid rgba(0,119,182,.2);">
+        <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+          <rect x="4" y="4" width="92" height="92" rx="18" fill="#D97757" opacity=".12"/>
+          <rect x="4" y="4" width="92" height="92" rx="18" stroke="#D97757" stroke-width="3"/>
+          <g stroke="#D97757" stroke-width="11" stroke-linecap="round">
+            <line x1="50" y1="16" x2="50" y2="84"/>
+            <line x1="16" y1="35" x2="84" y2="65"/>
+            <line x1="84" y1="35" x2="16" y2="65"/>
+          </g>
+        </svg>
+        <span style="font-family:'Syne',sans-serif; font-weight:800; font-size:.9rem; color:#D97757; letter-spacing:-.01em; white-space:nowrap;">Claude Code</span>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:10px; padding:0 40px; border-right:1px solid rgba(0,119,182,.2);">
+        <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+          <polygon points="50,6 94,29 50,52 6,29" fill="#3d3d3d"/>
+          <polygon points="6,29 50,52 50,94 6,71" fill="#1a1a1a"/>
+          <polygon points="94,29 50,52 50,94 94,71" fill="#2a2a2a"/>
+        </svg>
+        <span style="font-family:'Syne',sans-serif; font-weight:800; font-size:.9rem; color:#1a1a1a; letter-spacing:-.01em; white-space:nowrap;">Cursor</span>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:10px; padding:0 40px; border-right:1px solid rgba(0,119,182,.2);">
+        <svg width="28" height="22" viewBox="0 0 140 100" fill="none">
+          <rect x="0"  y="10" width="36" height="80" rx="18" fill="#00C2BA"/>
+          <rect x="104" y="10" width="36" height="80" rx="18" fill="#00C2BA"/>
+          <rect x="0"  y="38" width="140" height="24" rx="12" fill="#00C2BA"/>
+        </svg>
+        <span style="font-family:'Syne',sans-serif; font-weight:800; font-size:.9rem; color:#00C2BA; letter-spacing:-.01em; white-space:nowrap;">Hyperliquid</span>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:10px; padding:0 40px; border-right:1px solid rgba(0,119,182,.2);">
+        <svg width="20" height="22" viewBox="0 0 100 100" fill="none">
+          <path d="M50 4 L94 96 H72 L50 40 L28 96 H6 Z" fill="#0077B6"/>
+          <path d="M42 54 L42 40 L58 40 L58 54 L66 54 L50 74 L34 54 Z" fill="#ffffff"/>
+        </svg>
+        <span style="font-family:'Syne',sans-serif; font-weight:800; font-size:.9rem; color:#0077B6; letter-spacing:-.01em; white-space:nowrap;">Attestr</span>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:10px; padding:0 40px; border-right:1px solid rgba(0,119,182,.2);">
+        <svg width="48" height="22" viewBox="0 0 280 104" fill="none">
+          <rect width="280" height="104" rx="8" fill="#5CB338"/>
+          <text x="140" y="74" text-anchor="middle" font-family="Arial Black,sans-serif" font-weight="900" font-size="64" fill="#000" letter-spacing="-2">CROO</text>
+        </svg>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:10px; padding:0 40px; border-right:1px solid rgba(0,119,182,.2);">
+        <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+          <g stroke="#D97757" stroke-width="13" stroke-linecap="round">
+            <line x1="50" y1="9" x2="50" y2="91"/>
+            <line x1="9" y1="30" x2="91" y2="70"/>
+            <line x1="91" y1="30" x2="9" y2="70"/>
+          </g>
+        </svg>
+        <span style="font-family:'Syne',sans-serif; font-weight:800; font-size:.9rem; color:#D97757; letter-spacing:-.01em; white-space:nowrap;">Claude</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<header class="navbar">
+  <div class="container navbar-inner">
+    <a href="/" class="navbar-logo">
+      <svg width="28" height="28" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+        <path d="M50 4 L94 96 H72 L50 40 L28 96 H6 Z" fill="#0077B6"/>
+        <path d="M42 54 L42 40 L58 40 L58 54 L66 54 L50 74 L34 54 Z" fill="#ffffff"/>
+      </svg>
+      Attestr
+    </a>
+    <nav aria-label="Main">
+      <ul class="nav-links">
+        <li><a href="#services">Services</a></li>
+        <li><a href="#integrations">Integrations</a></li>
+        <li><a href="#setup">Setup</a></li>
+        <li><a href="#mcp-tools">MCP Tools</a></li>
+        <li><a href="#community">Community</a></li>
+        <li><a href="https://croo.network" target="_blank" rel="noreferrer">CROO</a></li>
+      </ul>
+    </nav>
+    <a href="https://agent.croo.network/agents/20ba0841-8411-4ee7-960e-5b1d376943d3"
+       target="_blank" rel="noreferrer" class="btn">Hire Agent →</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" aria-labelledby="hero-h">
+  <div class="container">
+    <div class="hero-text">
+      <div class="hero-eyebrow" style="display:inline-flex; align-items:center; gap:10px;">
+        <span style="display:inline-flex; align-items:center; gap:6px;">
+          <span style="width:8px; height:8px; border-radius:50%; background:#0077B6; display:inline-block; animation:livepulse 1.6s ease-in-out infinite;"></span>
+          <span style="font-weight:900; letter-spacing:.14em;">LIVE</span>
+        </span>
+        <span style="opacity:.35;">·</span>
+        <span>BASE</span>
+      </div>
+      <h1 class="hero-headline" id="hero-h">
+        <span class="light">Before you deposit —</span>
+        <span class="heavy">Attestr it.</span>
+      </h1>
+      <p class="hero-sub">
+        Hyperliquid vault intelligence &amp; Web3 risk analysis on Base.
+        $0.01 USDC per check. No setup. No subscription.
+      </p>
+      <div class="hero-ctas">
+        <a href="https://agent.croo.network/agents/20ba0841-8411-4ee7-960e-5b1d376943d3"
+           target="_blank" rel="noreferrer" class="btn">Hire Agent →</a>
+        <a href="#mcp" class="btn btn-ghost">Use via MCP</a>
+      </div>
+      <div style="display:flex; flex-wrap:wrap; gap:6px 20px; margin-top:18px; padding-top:18px; border-top:1px solid rgba(0,119,182,.15);">
+        <span style="font-family:'Inter',sans-serif; font-size:.75rem; font-weight:700; color:#0077B6; letter-spacing:.02em; white-space:nowrap;">★ Hyperliquid Vault Analysis</span>
+        <span style="font-family:'Inter',sans-serif; font-size:.75rem; color:rgba(0,119,182,.5); font-weight:600; white-space:nowrap;">Web3 Research</span>
+        <span style="font-family:'Inter',sans-serif; font-size:.75rem; color:rgba(0,119,182,.5); font-weight:600; white-space:nowrap;">Full Due Diligence</span>
+        <span style="font-family:'Inter',sans-serif; font-size:.75rem; color:rgba(0,119,182,.5); font-weight:600; white-space:nowrap;">Contract Risk Check</span>
+      </div>
+    </div>
+  </div>
+  <!-- Risk ticker -->
+  <div class="ticker-wrap" role="marquee" aria-label="Live risk feed">
+    <div class="ticker-inner" aria-hidden="true">
+      <span class="ticker-item">0x8335...fCD6 <span class="ticker-safe">→ SAFE · 10/100</span> · USDC on Base</span>
+      <span class="ticker-item">HLP Vault <span class="ticker-safe">→ SAFE · 100% uptime</span> · Hyperliquid</span>
+      <span class="ticker-item">0xA0b8...E1Ab <span class="ticker-safe">→ SAFE · 8/100</span> · WETH verified</span>
+      <span class="ticker-item">GMX Vault <span class="ticker-risk">→ REVIEW · 61/100</span> · check before deposit</span>
+      <span class="ticker-item">Uniswap V4 <span class="ticker-safe">→ SAFE · 12/100</span> · audited</span>
+      <span class="ticker-item">0xBe0e...cB38 <span class="ticker-safe">→ SAFE · 9/100</span> · USDC Circle</span>
+      <span class="ticker-item">Pendle PT-USDC <span class="ticker-safe">→ SAFE · 18/100</span> · yield verified</span>
+      <span class="ticker-item">0x7Fc6...2D40 <span class="ticker-risk">→ RISK · 78/100</span> · admin key unrenounced</span>
+      <span class="ticker-item">0x8335...fCD6 <span class="ticker-safe">→ SAFE · 10/100</span> · USDC on Base</span>
+      <span class="ticker-item">HLP Vault <span class="ticker-safe">→ SAFE · 100% uptime</span> · Hyperliquid</span>
+      <span class="ticker-item">0xA0b8...E1Ab <span class="ticker-safe">→ SAFE · 8/100</span> · WETH verified</span>
+      <span class="ticker-item">GMX Vault <span class="ticker-risk">→ REVIEW · 61/100</span> · check before deposit</span>
+      <span class="ticker-item">Uniswap V4 <span class="ticker-safe">→ SAFE · 12/100</span> · audited</span>
+      <span class="ticker-item">0xBe0e...cB38 <span class="ticker-safe">→ SAFE · 9/100</span> · USDC Circle</span>
+      <span class="ticker-item">Pendle PT-USDC <span class="ticker-safe">→ SAFE · 18/100</span> · yield verified</span>
+      <span class="ticker-item">0x7Fc6...2D40 <span class="ticker-risk">→ RISK · 78/100</span> · admin key unrenounced</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════
+  CROO — MAIN SPONSOR
+════════════════════════════════ -->
+<section class="croo-sponsor">
+  <div class="container">
+    <div class="croo-sponsor-inner">
+
+      <!-- CROO Logo -->
+      <a href="https://croo.network" target="_blank" rel="noreferrer"
+         style="display:flex; flex-direction:column; align-items:flex-start; gap:10px; flex-shrink:0;">
+        <div class="croo-sponsor-label">Main Sponsor</div>
+        <!-- CROO Logo: lime green rect + bold CROO -->
+        <svg width="140" height="52" viewBox="0 0 280 104" fill="none" role="img" aria-label="CROO">
+          <rect width="280" height="104" rx="6" fill="#5CB338"/>
+          <text x="140" y="72" text-anchor="middle"
+            font-family="Arial Black, Helvetica Neue, sans-serif"
+            font-weight="900" font-size="58" fill="#000000" letter-spacing="-2">CROO</text>
+        </svg>
+      </a>
+
+      <div class="croo-divider"></div>
+
+      <!-- Copy -->
+      <div>
+        <div class="croo-tagline">
+          CROO Agent Protocol —<br/>the TCP/IP for AI agents.
+        </div>
+        <p class="croo-sub">
+          Just as TCP/IP standardised internet communication, CROO Agent Protocol (CAP)
+          standardises how AI agents discover, hire, pay, and deliver to each other — all
+          on-chain on Base mainnet in USDC. Attestr is a fully native CAP agent.
+        </p>
+      </div>
+
+      <!-- CTA -->
+      <div style="flex-shrink:0;">
+        <a href="https://agent.croo.network/" target="_blank" rel="noreferrer" class="btn">
+          Explore CROO →
+        </a>
+        <div style="margin-top:12px; font-size:.72rem; opacity:.5; text-align:center; letter-spacing:.08em; font-weight:600;">
+          agent.croo.network
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- PROTOCOL STRIP -->
+<div class="proto-strip">
+  <div class="container proto-inner">
+    <div class="proto-badge">CAP Protocol</div>
+    <div class="proto-divider"></div>
+    <div class="proto-badge">MCP Compatible</div>
+    <div class="proto-divider"></div>
+    <div class="proto-badge">Base Mainnet</div>
+    <div class="proto-divider"></div>
+    <div class="proto-badge">USDC Settlement</div>
+    <div class="proto-divider"></div>
+    <div class="proto-badge">Human + Agent Hiring</div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section class="services" id="services">
+  <div class="container">
+    <p class="section-label">What Attestr checks</p>
+    <div class="services-grid">
+
+      <div class="service-card">
+        <div class="service-icon">◉</div>
+        <div class="service-name">Hyperliquid Vault Analysis</div>
+        <p class="service-desc">HLP and strategy vault deep-dive: TVL, risk exposure, historical performance, withdrawal delay, and deposit safety verdict.</p>
+        <div style="margin-top:auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+          <span class="service-price">$0.05 USDC</span>
+          <a href="https://agent.croo.network/agents/20ba0841-8411-4ee7-960e-5b1d376943d3"
+             target="_blank" rel="noreferrer"
+             style="font-size:.73rem; font-weight:700; letter-spacing:.06em; text-decoration:none; color:var(--blue); opacity:.65; transition:opacity .15s;"
+             onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.65'">
+            Try this →
+          </a>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">◎</div>
+        <div class="service-name">Web3 Research Query</div>
+        <p class="service-desc">Ask any DeFi question. Attestr searches, verifies sources on-chain, and returns a confidence-scored intelligence report.</p>
+        <div style="margin-top:auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+          <span class="service-price">$0.01 USDC</span>
+          <a href="https://agent.croo.network/agents/20ba0841-8411-4ee7-960e-5b1d376943d3"
+             target="_blank" rel="noreferrer"
+             style="font-size:.73rem; font-weight:700; letter-spacing:.06em; text-decoration:none; color:var(--blue); opacity:.65; transition:opacity .15s;"
+             onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.65'">
+            Try this →
+          </a>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">◐</div>
+        <div class="service-name">Full Due Diligence</div>
+        <p class="service-desc">Research + risk analysis in one call. Everything you need to evaluate a protocol before a significant position — combined report.</p>
+        <div style="margin-top:auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+          <span class="service-price">$0.02 USDC</span>
+          <a href="https://agent.croo.network/agents/20ba0841-8411-4ee7-960e-5b1d376943d3"
+             target="_blank" rel="noreferrer"
+             style="font-size:.73rem; font-weight:700; letter-spacing:.06em; text-decoration:none; color:var(--blue); opacity:.65; transition:opacity .15s;"
+             onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.65'">
+            Try this →
+          </a>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">◈</div>
+        <div class="service-name">Contract / Wallet Risk Check</div>
+        <p class="service-desc">Pass any EVM address. Returns a 0–100 risk score, source verification, admin key status, and a plain-language verdict.</p>
+        <div style="margin-top:auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+          <span class="service-price">$0.01 USDC</span>
+          <a href="https://agent.croo.network/agents/20ba0841-8411-4ee7-960e-5b1d376943d3"
+             target="_blank" rel="noreferrer"
+             style="font-size:.73rem; font-weight:700; letter-spacing:.06em; text-decoration:none; color:var(--blue); opacity:.65; transition:opacity .15s;"
+             onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.65'">
+            Try this →
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════
+  VAULT ANALYSIS DEEP DIVE
+════════════════════════════════ -->
+<section id="vault-analysis" style="padding: 88px 0; border-bottom: 1.5px solid var(--blue);">
+  <div class="container">
+
+    <!-- Header -->
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:32px; flex-wrap:wrap; margin-bottom:52px;">
+      <div>
+        <p class="section-label">Hyperliquid Vault Analysis</p>
+        <h2 style="font-family:var(--font-display); font-size:clamp(1.6rem,3.5vw,2.4rem); font-weight:800; letter-spacing:-.04em; line-height:1.1; max-width:480px;">
+          Know your vault before<br/>you deposit a dollar.
+        </h2>
+      </div>
+      <a href="https://agent.croo.network/agents/20ba0841-8411-4ee7-960e-5b1d376943d3"
+         target="_blank" rel="noreferrer" class="btn" style="flex-shrink:0; align-self:center;">
+        Analyse a vault now →
+      </a>
+    </div>
+
+    <!-- What it does — 3 fact strips -->
+    <div style="border:1.5px solid var(--blue); margin-bottom:40px;">
+      <div style="display:grid; grid-template-columns:repeat(3,1fr);">
+        <div style="padding:28px 28px; border-right:1.5px solid var(--blue);">
+          <div style="font-size:.65rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase; opacity:.45; margin-bottom:10px;">What it fetches</div>
+          <ul style="list-style:none; display:flex; flex-direction:column; gap:7px;">
+            <li style="font-size:.84rem; display:flex; gap:8px;"><span style="opacity:.4; flex-shrink:0;">→</span>On-chain TVL &amp; vault address</li>
+            <li style="font-size:.84rem; display:flex; gap:8px;"><span style="opacity:.4; flex-shrink:0;">→</span>Position composition &amp; leverage</li>
+            <li style="font-size:.84rem; display:flex; gap:8px;"><span style="opacity:.4; flex-shrink:0;">→</span>Withdrawal delay &amp; lock terms</li>
+            <li style="font-size:.84rem; display:flex; gap:8px;"><span style="opacity:.4; flex-shrink:0;">→</span>Operator identity &amp; reputation</li>
+          </ul>
+        </div>
+        <div style="padding:28px 28px; border-right:1.5px solid var(--blue);">
+          <div style="font-size:.65rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase; opacity:.45; margin-bottom:10px;">What it checks</div>
+          <ul style="list-style:none; display:flex; flex-direction:column; gap:7px;">
+            <li style="font-size:.84rem; display:flex; gap:8px;"><span style="opacity:.4; flex-shrink:0;">→</span>Admin key ownership &amp; renouncement</li>
+            <li style="font-size:.84rem; display:flex; gap:8px;"><span style="opacity:.4; flex-shrink:0;">→</span>Concentration risk (single operator)</li>
+            <li style="font-size:.84rem; display:flex; gap:8px;"><span style="opacity:.4; flex-shrink:0;">→</span>Historical drawdown &amp; recovery</li>
+            <li style="font-size:.84rem; display:flex; gap:8px;"><span style="opacity:.4; flex-shrink:0;">→</span>Strategy type: directional vs MM</li>
+          </ul>
+        </div>
+        <div style="padding:28px 28px;">
+          <div style="font-size:.65rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase; opacity:.45; margin-bottom:10px;">What you receive</div>
+          <ul style="list-style:none; display:flex; flex-direction:column; gap:7px;">
+            <li style="font-size:.84rem; display:flex; gap:8px;"><span style="opacity:.4; flex-shrink:0;">→</span>0–100 risk score with verdict</li>
+            <li style="font-size:.84rem; display:flex; gap:8px;"><span style="opacity:.4; flex-shrink:0;">→</span>3–5 key findings, plain language</li>
+            <li style="font-size:.84rem; display:flex; gap:8px;"><span style="opacity:.4; flex-shrink:0;">→</span>Deposit recommendation</li>
+            <li style="font-size:.84rem; display:flex; gap:8px;"><span style="opacity:.4; flex-shrink:0;">→</span>Settled on Base · $0.05 USDC</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Split: what to submit + sample result -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; border:1.5px solid var(--blue);">
+
+      <!-- Left: what to submit -->
+      <div style="padding:40px 36px; border-right:1.5px solid var(--blue);">
+        <div style="font-size:.65rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase; opacity:.45; margin-bottom:24px;">What to submit</div>
+
+        <div style="display:flex; flex-direction:column; gap:20px;">
+          <!-- Option A -->
+          <div style="padding:18px 20px; border:1.5px solid var(--blue); background:var(--blue08);">
+            <div style="font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; opacity:.5; margin-bottom:10px;">Option A — vault address</div>
+            <code style="font-family:'SF Mono','Fira Code',monospace; font-size:.82rem; font-weight:700; word-break:break-all;">
+              0xdfc24b077bc1425ad1dea75bcb6f8158e10df303
+            </code>
+            <p style="margin-top:8px; font-size:.76rem; opacity:.55; line-height:1.6;">
+              The on-chain address of any Hyperliquid vault. Found on the Hyperliquid app under the vault details page.
+            </p>
+          </div>
+          <!-- Option B -->
+          <div style="padding:18px 20px; border:1.5px solid var(--blue);">
+            <div style="font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; opacity:.5; margin-bottom:10px;">Option B — vault name</div>
+            <code style="font-family:'SF Mono','Fira Code',monospace; font-size:.82rem; font-weight:700;">
+              "HLP"  or  "Hyperliquidity Provider"
+            </code>
+            <p style="margin-top:8px; font-size:.76rem; opacity:.55; line-height:1.6;">
+              Named vaults (HLP, HYPE, etc.) can be identified by name — Attestr resolves the address automatically.
+            </p>
+          </div>
+          <!-- Tips -->
+          <div style="font-size:.76rem; line-height:1.7; opacity:.5; padding-top:4px;">
+            Works via CROO dashboard · Claude · Claude Code · Cursor<br/>
+            Cost: $0.05 USDC · Settled on Base mainnet
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: sample result -->
+      <div style="padding:0; background:#fafeff;">
+        <div style="padding:16px 24px; border-bottom:1.5px solid var(--blue); display:flex; align-items:center; justify-content:space-between;">
+          <span style="font-size:.68rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; opacity:.45;">Sample result — HLP vault</span>
+          <span style="font-size:.68rem; font-weight:800; padding:3px 10px; border:1.5px solid var(--blue); letter-spacing:.08em;">SAFE</span>
+        </div>
+        <div style="padding:28px 28px; font-family:'SF Mono','Fira Code',monospace; font-size:.78rem; line-height:1.9; color:var(--blue);">
+          <div style="opacity:.45; margin-bottom:4px;">// Vault Analysis · 2025-06-21</div>
+          <br/>
+          <div><span style="opacity:.45;">vault_name    </span><span style="font-weight:800;">HLP (Hyperliquidity Provider)</span></div>
+          <div><span style="opacity:.45;">address       </span>0xdfc24b...df303</div>
+          <div><span style="opacity:.45;">tvl           </span><span style="font-weight:700;">$486,200,000</span></div>
+          <div><span style="opacity:.45;">strategy      </span>Market-making (non-directional)</div>
+          <div><span style="opacity:.45;">operator      </span>Hyperliquid core team</div>
+          <div><span style="opacity:.45;">risk_score    </span><span style="font-weight:800;">15 / 100</span></div>
+          <div><span style="opacity:.45;">verdict       </span><span style="font-weight:800;">✓ SAFE TO DEPOSIT</span></div>
+          <br/>
+          <div style="opacity:.45;">// Key findings</div>
+          <div>✓ <span style="opacity:.7;">Operated by verified core team</span></div>
+          <div>✓ <span style="opacity:.7;">Market-making strategy, low directional risk</span></div>
+          <div>✓ <span style="opacity:.7;">No admin backdoors detected</span></div>
+          <div>⚠ <span style="opacity:.7;">14-day withdrawal delay — plan ahead</span></div>
+          <div>⚠ <span style="opacity:.7;">Single-operator concentration risk</span></div>
+          <br/>
+          <div style="opacity:.45; font-size:.7rem;">cost: $0.05 USDC · settled on Base · order #2</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-cell">
+        <div class="stat-value">2</div>
+        <div class="stat-label">Orders completed</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-value">100%</div>
+        <div class="stat-label">Completion rate</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-value">Base</div>
+        <div class="stat-label">Mainnet · USDC</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="container">
+    <p class="section-label">How it works</p>
+    <div class="how-grid">
+      <div class="how-step">
+        <div class="step-num">1</div>
+        <div class="step-title">Send the address or question</div>
+        <p class="step-desc">Paste a contract address, vault name, or research question via the CROO dashboard, Claude, Claude Code, Cursor, or any MCP host.</p>
+      </div>
+      <div class="how-step">
+        <div class="step-num">2</div>
+        <div class="step-title">Attestr checks on-chain</div>
+        <p class="step-desc">The agent runs source verification, risk scoring, and web research — settled on-chain via CROO Agent Protocol on Base mainnet.</p>
+      </div>
+      <div class="how-step">
+        <div class="step-num">3</div>
+        <div class="step-title">Read the verdict. Decide.</div>
+        <p class="step-desc">A structured report: risk score, key findings, plain verdict. $0.01 USDC deducted on delivery. You decide whether to deposit.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════
+  INTEGRATIONS — Claude, Claude Code, Cursor
+════════════════════════════════ -->
+<section class="integrations" id="integrations">
+  <div class="container">
+    <p class="section-label">MCP Integrations — use Attestr in your AI tools</p>
+    <div class="integrations-grid">
+
+      <!-- Claude -->
+      <div class="integration-card">
+        <div class="integration-logo">
+          <!-- Claude logo: orange starburst asterisk — 3 lines at 60° intervals -->
+          <svg width="48" height="48" viewBox="0 0 100 100" fill="none" aria-label="Claude">
+            <g stroke="#D97757" stroke-width="13" stroke-linecap="round">
+              <line x1="50" y1="9"  x2="50"  y2="91"/>
+              <line x1="9"  y1="30" x2="91"  y2="70"/>
+              <line x1="91" y1="30" x2="9"   y2="70"/>
+            </g>
+          </svg>
+          <span style="margin-left:12px; font-family:var(--font-display); font-weight:800; font-size:1.1rem; letter-spacing:-.02em;">Claude</span>
+        </div>
+        <p class="integration-desc">
+          Ask Claude to check a vault or contract directly in conversation. Attestr responds inline with a full risk report — no tab switching.
+        </p>
+        <ul class="integration-steps">
+          <li>Add Attestr to Claude's MCP server config</li>
+          <li>Ask "Attestr this vault: HLP"</li>
+          <li>Claude calls the tool and shows you the result</li>
+        </ul>
+      </div>
+
+      <!-- Claude Code -->
+      <div class="integration-card">
+        <div class="integration-logo">
+          <!-- Claude Code: same asterisk but inside a rounded square to distinguish -->
+          <svg width="48" height="48" viewBox="0 0 100 100" fill="none" aria-label="Claude Code">
+            <rect x="4" y="4" width="92" height="92" rx="18" fill="#D97757" opacity=".12"/>
+            <rect x="4" y="4" width="92" height="92" rx="18" stroke="#D97757" stroke-width="3"/>
+            <g stroke="#D97757" stroke-width="11" stroke-linecap="round">
+              <line x1="50" y1="16" x2="50"  y2="84"/>
+              <line x1="16" y1="35" x2="84"  y2="65"/>
+              <line x1="84" y1="35" x2="16"  y2="65"/>
+            </g>
+          </svg>
+          <span style="margin-left:12px; font-family:var(--font-display); font-weight:800; font-size:1.1rem; letter-spacing:-.02em;">Claude Code</span>
+        </div>
+        <p class="integration-desc">
+          Wire Attestr as an MCP tool in Claude Code CLI. Run risk checks without leaving your terminal — results stream back inline.
+        </p>
+        <ul class="integration-steps">
+          <li>Add server config to <code style="font-size:.72rem;">.claude/mcp.json</code></li>
+          <li>Use in Claude Code with <code style="font-size:.72rem;">/mcp</code> or tool call</li>
+          <li>Results appear in your session context</li>
+        </ul>
+      </div>
+
+      <!-- Cursor -->
+      <div class="integration-card">
+        <div class="integration-logo">
+          <!-- Cursor logo: 3D isometric cube, charcoal facets -->
+          <svg width="48" height="48" viewBox="0 0 100 100" fill="none" aria-label="Cursor">
+            <polygon points="50,6 94,29 50,52 6,29"   fill="#3d3d3d"/>
+            <polygon points="6,29 50,52 50,94 6,71"   fill="#1a1a1a"/>
+            <polygon points="94,29 50,52 50,94 94,71"  fill="#2a2a2a"/>
+          </svg>
+          <span style="margin-left:12px; font-family:var(--font-display); font-weight:800; font-size:1.1rem; letter-spacing:-.02em;">Cursor</span>
+        </div>
+        <p class="integration-desc">
+          Attestr appears as a tool in Cursor AI sessions. Ask Cursor to check a contract address before you integrate it into your code.
+        </p>
+        <ul class="integration-steps">
+          <li>Open Settings → Features → MCP</li>
+          <li>Add Attestr server URL and key</li>
+          <li>Attestr tools available in every AI session</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════
+  SETUP GUIDE
+════════════════════════════════ -->
+<section id="setup" style="padding:88px 0; border-bottom:1.5px solid var(--blue);">
+  <div class="container">
+
+    <!-- Header -->
+    <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:24px; flex-wrap:wrap; margin-bottom:52px;">
+      <div>
+        <p class="section-label">Setup guide</p>
+        <h2 style="font-family:var(--font-display); font-size:clamp(1.6rem,3.5vw,2.4rem); font-weight:800; letter-spacing:-.04em; line-height:1.1;">
+          Attestr in your AI tool<br/>in under 5 minutes.
+        </h2>
+      </div>
+      <div style="font-size:.84rem; opacity:.55; max-width:300px; line-height:1.7; text-align:right;">
+        One MCP server. Works in Claude Desktop,<br/>Claude Code CLI, and Cursor.
+      </div>
+    </div>
+
+    <!-- Prerequisites strip -->
+    <div style="border:1.5px solid var(--blue); margin-bottom:40px; display:grid; grid-template-columns:repeat(3,1fr);">
+      <div style="padding:24px 28px; border-right:1.5px solid var(--blue); display:flex; gap:16px; align-items:flex-start;">
+        <span style="font-family:var(--font-display); font-size:1.8rem; font-weight:800; opacity:.12; line-height:1; flex-shrink:0;">A</span>
+        <div>
+          <div style="font-size:.72rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; margin-bottom:6px;">Node.js v18+</div>
+          <p style="font-size:.78rem; opacity:.6; line-height:1.6;">Required to run the MCP server process. <a href="https://nodejs.org" target="_blank" rel="noreferrer" style="font-weight:700; text-decoration:underline; text-underline-offset:2px;">Download at nodejs.org</a></p>
+        </div>
+      </div>
+      <div style="padding:24px 28px; border-right:1.5px solid var(--blue); display:flex; gap:16px; align-items:flex-start;">
+        <span style="font-family:var(--font-display); font-size:1.8rem; font-weight:800; opacity:.12; line-height:1; flex-shrink:0;">B</span>
+        <div>
+          <div style="font-size:.72rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; margin-bottom:6px;">CROO SDK Key</div>
+          <p style="font-size:.78rem; opacity:.6; line-height:1.6;">Free API key from the CROO dashboard. <a href="https://croo.network" target="_blank" rel="noreferrer" style="font-weight:700; text-decoration:underline; text-underline-offset:2px;">Get it at croo.network</a></p>
+        </div>
+      </div>
+      <div style="padding:24px 28px; display:flex; gap:16px; align-items:flex-start;">
+        <span style="font-family:var(--font-display); font-size:1.8rem; font-weight:800; opacity:.12; line-height:1; flex-shrink:0;">C</span>
+        <div>
+          <div style="font-size:.72rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; margin-bottom:6px;">Attestr MCP Server</div>
+          <p style="font-size:.78rem; opacity:.6; line-height:1.6;">Clone the repo and note the path to <code style="font-family:'SF Mono',monospace; font-size:.75rem;">src/mcp/server.js</code></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Get the server command -->
+    <div style="border:1.5px solid var(--blue); padding:20px 28px; margin-bottom:40px; background:var(--blue08); display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+      <div style="font-size:.65rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase; opacity:.45; white-space:nowrap;">Clone Attestr</div>
+      <code style="font-family:'SF Mono','Fira Code',monospace; font-size:.82rem; font-weight:700; flex:1; min-width:220px;">git clone https://github.com/your-org/attestr && cd attestr && npm install</code>
+      <div style="font-size:.72rem; opacity:.45; white-space:nowrap;">then note your local path</div>
+    </div>
+
+    <!-- 3 setup columns -->
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); border:1.5px solid var(--blue); margin-bottom:40px;">
+
+      <!-- ── CLAUDE DESKTOP ── -->
+      <div style="border-right:1.5px solid var(--blue); display:flex; flex-direction:column;">
+        <!-- Tool header -->
+        <div style="padding:24px 28px; border-bottom:1.5px solid var(--blue); display:flex; align-items:center; gap:12px; background:var(--blue08);">
+          <svg width="32" height="32" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+            <g stroke="#D97757" stroke-width="13" stroke-linecap="round">
+              <line x1="50" y1="9" x2="50" y2="91"/>
+              <line x1="9" y1="30" x2="91" y2="70"/>
+              <line x1="91" y1="30" x2="9" y2="70"/>
+            </g>
+          </svg>
+          <div>
+            <div style="font-family:var(--font-display); font-weight:800; font-size:.95rem; letter-spacing:-.02em;">Claude Desktop</div>
+            <div style="font-size:.68rem; opacity:.5; font-weight:600;">claude.ai/download</div>
+          </div>
+        </div>
+
+        <!-- Steps -->
+        <div style="padding:28px 28px; flex:1; display:flex; flex-direction:column; gap:20px;">
+
+          <div style="display:flex; gap:14px;">
+            <div style="font-family:var(--font-display); font-size:1.8rem; font-weight:800; opacity:.1; line-height:1; flex-shrink:0; width:28px; text-align:right;">1</div>
+            <div>
+              <div style="font-size:.78rem; font-weight:700; margin-bottom:4px;">Open your config file</div>
+              <p style="font-size:.74rem; opacity:.6; line-height:1.6;">Mac: <code style="font-family:'SF Mono',monospace; font-size:.72rem;">~/Library/Application Support/Claude/claude_desktop_config.json</code></p>
+              <p style="font-size:.74rem; opacity:.6; line-height:1.6; margin-top:4px;">Windows: <code style="font-family:'SF Mono',monospace; font-size:.72rem;">%APPDATA%\Claude\claude_desktop_config.json</code></p>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:14px;">
+            <div style="font-family:var(--font-display); font-size:1.8rem; font-weight:800; opacity:.1; line-height:1; flex-shrink:0; width:28px; text-align:right;">2</div>
+            <div>
+              <div style="font-size:.78rem; font-weight:700; margin-bottom:8px;">Add the MCP server block</div>
+              <pre style="font-size:.7rem; line-height:1.75; margin-bottom:0; background:var(--blue08); padding:12px; border:1px solid var(--blue32);">{
+  "mcpServers": {
+    "attestr": {
+      "command": "node",
+      "args": [
+        "/absolute/path/to/
+attestr/src/mcp/server.js"
+      ],
+      "env": {
+        "CROO_SDK_KEY":
+          "croo_sk_your_key"
+      }
+    }
+  }
+}</pre>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:14px;">
+            <div style="font-family:var(--font-display); font-size:1.8rem; font-weight:800; opacity:.1; line-height:1; flex-shrink:0; width:28px; text-align:right;">3</div>
+            <div>
+              <div style="font-size:.78rem; font-weight:700; margin-bottom:4px;">Restart Claude Desktop</div>
+              <p style="font-size:.74rem; opacity:.6; line-height:1.6;">Quit fully (Cmd+Q / Alt+F4), then reopen. The Attestr tools load automatically on start.</p>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:14px;">
+            <div style="font-family:var(--font-display); font-size:1.8rem; font-weight:800; opacity:.1; line-height:1; flex-shrink:0; width:28px; text-align:right;">4</div>
+            <div>
+              <div style="font-size:.78rem; font-weight:700; margin-bottom:4px;">Verify tools loaded</div>
+              <p style="font-size:.74rem; opacity:.6; line-height:1.6;">Click the <strong>⚙ Tools</strong> icon in Claude Desktop — you should see <code style="font-family:'SF Mono',monospace; font-size:.72rem;">attestr</code> listed with 4 tools.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Test command -->
+        <div style="margin:0 28px 28px; padding:14px 16px; border:1.5px solid var(--blue); background:var(--blue08);">
+          <div style="font-size:.6rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; opacity:.4; margin-bottom:8px;">Test it — type this in Claude</div>
+          <code style="font-family:'SF Mono',monospace; font-size:.76rem; font-weight:700; line-height:1.5; display:block;">"Attestr this Hyperliquid vault: HLP"</code>
+        </div>
+      </div>
+
+      <!-- ── CLAUDE CODE ── -->
+      <div style="border-right:1.5px solid var(--blue); display:flex; flex-direction:column;">
+        <div style="padding:24px 28px; border-bottom:1.5px solid var(--blue); display:flex; align-items:center; gap:12px; background:var(--blue08);">
+          <svg width="32" height="32" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+            <rect x="4" y="4" width="92" height="92" rx="18" fill="#D97757" opacity=".12"/>
+            <rect x="4" y="4" width="92" height="92" rx="18" stroke="#D97757" stroke-width="3"/>
+            <g stroke="#D97757" stroke-width="11" stroke-linecap="round">
+              <line x1="50" y1="16" x2="50" y2="84"/>
+              <line x1="16" y1="35" x2="84" y2="65"/>
+              <line x1="84" y1="35" x2="16" y2="65"/>
+            </g>
+          </svg>
+          <div>
+            <div style="font-family:var(--font-display); font-weight:800; font-size:.95rem; letter-spacing:-.02em;">Claude Code</div>
+            <div style="font-size:.68rem; opacity:.5; font-weight:600;">CLI · npm i -g @anthropic-ai/claude-code</div>
+          </div>
+        </div>
+
+        <div style="padding:28px 28px; flex:1; display:flex; flex-direction:column; gap:20px;">
+
+          <div style="display:flex; gap:14px;">
+            <div style="font-family:var(--font-display); font-size:1.8rem; font-weight:800; opacity:.1; line-height:1; flex-shrink:0; width:28px; text-align:right;">1</div>
+            <div>
+              <div style="font-size:.78rem; font-weight:700; margin-bottom:4px;">Add via CLI (easiest)</div>
+              <pre style="font-size:.7rem; line-height:1.75; margin-bottom:0; background:var(--blue08); padding:12px; border:1px solid var(--blue32);">claude mcp add attestr \
+  node \
+  /path/to/attestr/src/mcp/server.js \
+  --env CROO_SDK_KEY=croo_sk_your_key</pre>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:14px;">
+            <div style="font-family:var(--font-display); font-size:1.8rem; font-weight:800; opacity:.1; line-height:1; flex-shrink:0; width:28px; text-align:right;">2</div>
+            <div>
+              <div style="font-size:.78rem; font-weight:700; margin-bottom:4px;">Or edit config manually</div>
+              <p style="font-size:.74rem; opacity:.6; line-height:1.6; margin-bottom:6px;">Open <code style="font-family:'SF Mono',monospace; font-size:.72rem;">~/.claude.json</code> and add the same JSON block as Claude Desktop (see left column).</p>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:14px;">
+            <div style="font-family:var(--font-display); font-size:1.8rem; font-weight:800; opacity:.1; line-height:1; flex-shrink:0; width:28px; text-align:right;">3</div>
+            <div>
+              <div style="font-size:.78rem; font-weight:700; margin-bottom:4px;">Verify tools are loaded</div>
+              <pre style="font-size:.7rem; line-height:1.75; margin-bottom:0; background:var(--blue08); padding:12px; border:1px solid var(--blue32);">claude mcp list
+# Should show: attestr (4 tools)</pre>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:14px;">
+            <div style="font-family:var(--font-display); font-size:1.8rem; font-weight:800; opacity:.1; line-height:1; flex-shrink:0; width:28px; text-align:right;">4</div>
+            <div>
+              <div style="font-size:.78rem; font-weight:700; margin-bottom:4px;">Start a session</div>
+              <pre style="font-size:.7rem; line-height:1.75; margin-bottom:0; background:var(--blue08); padding:12px; border:1px solid var(--blue32);">claude
+# Then type naturally — Claude routes
+# your request to Attestr tools</pre>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin:0 28px 28px; padding:14px 16px; border:1.5px solid var(--blue); background:var(--blue08);">
+          <div style="font-size:.6rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; opacity:.4; margin-bottom:8px;">Test it — type this in your session</div>
+          <code style="font-family:'SF Mono',monospace; font-size:.76rem; font-weight:700; line-height:1.5; display:block;">"Check contract 0x833589f... with Attestr"</code>
+        </div>
+      </div>
+
+      <!-- ── CURSOR ── -->
+      <div style="display:flex; flex-direction:column;">
+        <div style="padding:24px 28px; border-bottom:1.5px solid var(--blue); display:flex; align-items:center; gap:12px; background:var(--blue08);">
+          <svg width="32" height="32" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+            <polygon points="50,6 94,29 50,52 6,29" fill="#3d3d3d"/>
+            <polygon points="6,29 50,52 50,94 6,71" fill="#1a1a1a"/>
+            <polygon points="94,29 50,52 50,94 94,71" fill="#2a2a2a"/>
+          </svg>
+          <div>
+            <div style="font-family:var(--font-display); font-weight:800; font-size:.95rem; letter-spacing:-.02em;">Cursor</div>
+            <div style="font-size:.68rem; opacity:.5; font-weight:600;">cursor.com · any version</div>
+          </div>
+        </div>
+
+        <div style="padding:28px 28px; flex:1; display:flex; flex-direction:column; gap:20px;">
+
+          <div style="display:flex; gap:14px;">
+            <div style="font-family:var(--font-display); font-size:1.8rem; font-weight:800; opacity:.1; line-height:1; flex-shrink:0; width:28px; text-align:right;">1</div>
+            <div>
+              <div style="font-size:.78rem; font-weight:700; margin-bottom:4px;">Open Cursor Settings</div>
+              <p style="font-size:.74rem; opacity:.6; line-height:1.6;"><kbd style="font-family:'SF Mono',monospace; font-size:.7rem; padding:2px 5px; border:1px solid var(--blue32);">Cmd ,</kbd> or <kbd style="font-family:'SF Mono',monospace; font-size:.7rem; padding:2px 5px; border:1px solid var(--blue32);">Ctrl ,</kbd> → then navigate to <strong>Features → MCP</strong></p>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:14px;">
+            <div style="font-family:var(--font-display); font-size:1.8rem; font-weight:800; opacity:.1; line-height:1; flex-shrink:0; width:28px; text-align:right;">2</div>
+            <div>
+              <div style="font-size:.78rem; font-weight:700; margin-bottom:8px;">Add Attestr as MCP server</div>
+              <p style="font-size:.74rem; opacity:.6; line-height:1.6; margin-bottom:6px;">Click <strong>+ Add MCP Server</strong>. Paste into your <code style="font-family:'SF Mono',monospace; font-size:.72rem;">~/.cursor/mcp.json</code>:</p>
+              <pre style="font-size:.7rem; line-height:1.75; margin-bottom:0; background:var(--blue08); padding:12px; border:1px solid var(--blue32);">{
+  "mcpServers": {
+    "attestr": {
+      "command": "node",
+      "args": [
+        "/path/to/attestr/
+src/mcp/server.js"
+      ],
+      "env": {
+        "CROO_SDK_KEY":
+          "croo_sk_your_key"
+      }
+    }
+  }
+}</pre>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:14px;">
+            <div style="font-family:var(--font-display); font-size:1.8rem; font-weight:800; opacity:.1; line-height:1; flex-shrink:0; width:28px; text-align:right;">3</div>
+            <div>
+              <div style="font-size:.78rem; font-weight:700; margin-bottom:4px;">Restart Cursor</div>
+              <p style="font-size:.74rem; opacity:.6; line-height:1.6;">Fully quit and reopen. The Attestr server connects automatically. You'll see a green dot next to "attestr" in MCP settings.</p>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:14px;">
+            <div style="font-family:var(--font-display); font-size:1.8rem; font-weight:800; opacity:.1; line-height:1; flex-shrink:0; width:28px; text-align:right;">4</div>
+            <div>
+              <div style="font-size:.78rem; font-weight:700; margin-bottom:4px;">Open Cursor AI (Agent mode)</div>
+              <p style="font-size:.74rem; opacity:.6; line-height:1.6;"><kbd style="font-family:'SF Mono',monospace; font-size:.7rem; padding:2px 5px; border:1px solid var(--blue32);">Cmd I</kbd> or <kbd style="font-family:'SF Mono',monospace; font-size:.7rem; padding:2px 5px; border:1px solid var(--blue32);">Ctrl I</kbd> — select <strong>Agent</strong> mode so tools are enabled, then type naturally.</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin:0 28px 28px; padding:14px 16px; border:1.5px solid var(--blue); background:var(--blue08);">
+          <div style="font-size:.6rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; opacity:.4; margin-bottom:8px;">Test it — type this in Cursor AI</div>
+          <code style="font-family:'SF Mono',monospace; font-size:.76rem; font-weight:700; line-height:1.5; display:block;">"Attestr full due diligence: Uniswap V4"</code>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Troubleshooting strip -->
+    <div style="border:1.5px solid var(--blue); display:grid; grid-template-columns:repeat(3,1fr);">
+      <div style="padding:20px 24px; border-right:1.5px solid var(--blue);">
+        <div style="font-size:.65rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; margin-bottom:8px; opacity:.5;">Tools not showing?</div>
+        <p style="font-size:.75rem; opacity:.6; line-height:1.65;">Confirm the path to <code style="font-family:'SF Mono',monospace; font-size:.72rem;">server.js</code> is absolute (not relative). Restart the app fully after any config edit.</p>
+      </div>
+      <div style="padding:20px 24px; border-right:1.5px solid var(--blue);">
+        <div style="font-size:.65rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; margin-bottom:8px; opacity:.5;">CROO SDK key error?</div>
+        <p style="font-size:.75rem; opacity:.6; line-height:1.65;">Get a free key at <a href="https://croo.network" target="_blank" rel="noreferrer" style="font-weight:700; text-decoration:underline; text-underline-offset:2px;">croo.network</a>. Make sure it's set in the <code style="font-family:'SF Mono',monospace; font-size:.72rem;">env</code> block inside the config, not as a shell variable.</p>
+      </div>
+      <div style="padding:20px 24px;">
+        <div style="font-size:.65rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; margin-bottom:8px; opacity:.5;">No USDC on Base?</div>
+        <p style="font-size:.75rem; opacity:.6; line-height:1.65;">Attestr charges per call in USDC on Base mainnet. Bridge USDC to Base via <a href="https://bridge.base.org" target="_blank" rel="noreferrer" style="font-weight:700; text-decoration:underline; text-underline-offset:2px;">bridge.base.org</a> before your first call.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════
+  COMMUNITY — Hyperliquid + CROO
+════════════════════════════════ -->
+<section class="community" id="community">
+  <div class="container">
+    <p class="section-label">Community</p>
+    <div class="community-grid">
+
+      <!-- Hyperliquid -->
+      <div class="community-card" style="position:relative;">
+        <div style="position:absolute; top:-1px; right:-1px; background:#0077B6; color:#fff; font-family:'Syne',sans-serif; font-size:.6rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; padding:5px 12px; border-bottom-left-radius:6px;">★ Best Service</div>
+        <div class="community-logo">
+          <!-- Hyperliquid logo: fluid H in teal with rounded terminal strokes -->
+          <svg width="120" height="44" viewBox="0 0 300 110" fill="none" aria-label="Hyperliquid">
+            <!-- H left stroke (fluid, rounded) -->
+            <rect x="10"  y="10" width="40" height="90" rx="20" fill="#00D4C8"/>
+            <!-- H right stroke -->
+            <rect x="140" y="10" width="40" height="90" rx="20" fill="#00D4C8"/>
+            <!-- H crossbar -->
+            <rect x="10"  y="40" width="170" height="30" rx="15" fill="#00D4C8"/>
+            <!-- "yperliquid" wordmark -->
+            <text x="200" y="72" font-family="Arial, sans-serif" font-weight="700"
+              font-size="44" fill="#00D4C8" letter-spacing="-1">liquid</text>
+          </svg>
+        </div>
+        <div class="community-name">Hyperliquid Traders</div>
+        <p class="community-desc">
+          Attestr was purpose-built for Hyperliquid. Check HLP vault safety, analyse strategy vaults, and research any perpetual protocol before committing capital. Used by Hyperliquid traders who want data before they deposit.
+        </p>
+        <div class="community-tags">
+          <span class="community-tag">HLP Vault</span>
+          <span class="community-tag">Strategy Vaults</span>
+          <span class="community-tag">Perps Research</span>
+        </div>
+        <a href="https://agent.croo.network/agents/20ba0841-8411-4ee7-960e-5b1d376943d3"
+           target="_blank" rel="noreferrer" class="btn btn-ghost" style="width:fit-content;">
+          Attestr a vault →
+        </a>
+      </div>
+
+      <!-- CROO community -->
+      <div class="community-card">
+        <div class="community-logo">
+          <svg width="120" height="44" viewBox="0 0 280 104" fill="none" aria-label="CROO Network">
+            <rect width="280" height="104" rx="6" fill="#5CB338"/>
+            <text x="140" y="72" text-anchor="middle"
+              font-family="Arial Black, Helvetica Neue, sans-serif"
+              font-weight="900" font-size="58" fill="#000000" letter-spacing="-2">CROO</text>
+          </svg>
+        </div>
+        <div class="community-name">CROO Agent Ecosystem</div>
+        <p class="community-desc">
+          CROO is the network that connects AI agents, developers, and human users through a shared on-chain protocol. Attestr is one agent in this growing ecosystem — browse all agents, build your own, or hire any service with USDC.
+        </p>
+        <div class="community-tags">
+          <span class="community-tag">Agent Marketplace</span>
+          <span class="community-tag">CAP Protocol</span>
+          <span class="community-tag">Base Mainnet</span>
+        </div>
+        <a href="https://agent.croo.network/" target="_blank" rel="noreferrer"
+           class="btn" style="width:fit-content;">
+          Browse agents →
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- MCP CONFIG -->
+<section id="mcp" style="padding: 88px 0; border-bottom: 1.5px solid var(--blue);">
+  <div class="container">
+    <p class="section-label">MCP server config</p>
+    <div class="mcp-grid">
+      <div class="mcp-left">
+        <h2 class="mcp-heading">One config block. Works in Claude, Claude Code, and Cursor.</h2>
+        <p class="mcp-desc">Add the Attestr MCP server to your editor config. Ask your AI assistant to check a contract — it calls Attestr and returns the result inline, without leaving the editor.</p>
+        <a href="https://agent.croo.network/agents/20ba0841-8411-4ee7-960e-5b1d376943d3"
+           target="_blank" rel="noreferrer" class="btn">View setup guide →</a>
+      </div>
+      <div class="mcp-right">
+        <div class="code-label">mcpServers config</div>
+        <pre><code>{
+  "mcpServers": {
+    "attestr": {
+      "command": "node",
+      "args": ["path/to/attestr/mcp"],
+      "env": {
+        "CROO_SDK_KEY": "your-key"
+      }
+    }
+  }
+}</code></pre>
+        <div class="compat-tags">
+          <span class="compat-tag">Claude</span>
+          <span class="compat-tag">Claude Code</span>
+          <span class="compat-tag">Cursor</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════
+  MCP TOOLS REFERENCE
+════════════════════════════════ -->
+<section id="mcp-tools" style="padding:88px 0; border-bottom:1.5px solid var(--blue);">
+  <div class="container">
+    <p class="section-label">MCP tool reference — call Attestr from your AI</p>
+    <h2 style="font-family:var(--font-display); font-size:clamp(1.4rem,3vw,2rem); font-weight:800; letter-spacing:-.04em; margin-bottom:48px; max-width:560px; line-height:1.15;">
+      4 tools. One MCP server.<br/>Works in Claude, Claude Code &amp; Cursor.
+    </h2>
+
+    <!-- 4 tool cards -->
+    <div style="display:flex; flex-direction:column; gap:0; border:1.5px solid var(--blue); margin-bottom:48px;">
+
+      <!-- Tool 1: analyze_hyperliquid_vault -->
+      <div style="display:grid; grid-template-columns:260px 1fr 1fr; border-bottom:1.5px solid var(--blue);">
+        <div style="padding:28px 28px; border-right:1.5px solid var(--blue); display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="font-size:.62rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; opacity:.4; margin-bottom:8px;">Tool 1</div>
+            <code style="font-family:'SF Mono','Fira Code',monospace; font-size:.82rem; font-weight:800; word-break:break-all; line-height:1.5; color:var(--blue);">analyze_hyperliquid_vault</code>
+          </div>
+          <div style="margin-top:16px;">
+            <span style="font-size:.7rem; font-weight:700; padding:3px 9px; border:1.5px solid var(--blue); letter-spacing:.06em;">$0.05 USDC</span>
+          </div>
+        </div>
+        <div style="padding:28px 28px; border-right:1.5px solid var(--blue);">
+          <div style="font-size:.62rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; opacity:.4; margin-bottom:10px;">Parameter</div>
+          <div style="font-family:'SF Mono','Fira Code',monospace; font-size:.8rem; margin-bottom:10px;">
+            <span style="opacity:.5;">vault_address: </span><span style="font-weight:700;">"0x..." or "HLP"</span>
+          </div>
+          <p style="font-size:.78rem; line-height:1.65; opacity:.6;">Vault contract address or named vault. Returns TVL, risk score, operator info, withdrawal terms, and deposit verdict.</p>
+        </div>
+        <div style="padding:24px 28px; background:var(--blue08);">
+          <div style="font-size:.62rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; opacity:.4; margin-bottom:10px;">How to call it</div>
+          <pre style="font-size:.73rem; line-height:1.75; margin-bottom:0;">"Attestr this Hyperliquid vault: HLP"
+
+"Check if 0xdfc24b...df303
+ is safe to deposit into"
+
+"Analyse the Hyperliquid
+ Hyperliquidity Provider vault"</pre>
+        </div>
+      </div>
+
+      <!-- Tool 2: research_web3 -->
+      <div style="display:grid; grid-template-columns:260px 1fr 1fr; border-bottom:1.5px solid var(--blue);">
+        <div style="padding:28px 28px; border-right:1.5px solid var(--blue); display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="font-size:.62rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; opacity:.4; margin-bottom:8px;">Tool 2</div>
+            <code style="font-family:'SF Mono','Fira Code',monospace; font-size:.82rem; font-weight:800; word-break:break-all; line-height:1.5; color:var(--blue);">research_web3</code>
+          </div>
+          <div style="margin-top:16px;">
+            <span style="font-size:.7rem; font-weight:700; padding:3px 9px; border:1.5px solid var(--blue); letter-spacing:.06em;">$0.01 USDC</span>
+          </div>
+        </div>
+        <div style="padding:28px 28px; border-right:1.5px solid var(--blue);">
+          <div style="font-size:.62rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; opacity:.4; margin-bottom:10px;">Parameter</div>
+          <div style="font-family:'SF Mono','Fira Code',monospace; font-size:.8rem; margin-bottom:10px;">
+            <span style="opacity:.5;">query: </span><span style="font-weight:700;">"your question"</span>
+          </div>
+          <p style="font-size:.78rem; line-height:1.65; opacity:.6;">Any DeFi or Web3 research question. Attestr searches, verifies sources on-chain, and returns confidence-scored findings.</p>
+        </div>
+        <div style="padding:24px 28px; background:var(--blue08);">
+          <div style="font-size:.62rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; opacity:.4; margin-bottom:10px;">How to call it</div>
+          <pre style="font-size:.73rem; line-height:1.75; margin-bottom:0;">"Research: is Hyperliquid
+ safe to use?"
+
+"Use Attestr to find out
+ what Pendle Finance does"
+
+"Attestr research: risks
+ of Uniswap V4 hooks"</pre>
+        </div>
+      </div>
+
+      <!-- Tool 3: full_due_diligence -->
+      <div style="display:grid; grid-template-columns:260px 1fr 1fr; border-bottom:1.5px solid var(--blue);">
+        <div style="padding:28px 28px; border-right:1.5px solid var(--blue); display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="font-size:.62rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; opacity:.4; margin-bottom:8px;">Tool 3</div>
+            <code style="font-family:'SF Mono','Fira Code',monospace; font-size:.82rem; font-weight:800; word-break:break-all; line-height:1.5; color:var(--blue);">full_due_diligence</code>
+          </div>
+          <div style="margin-top:16px;">
+            <span style="font-size:.7rem; font-weight:700; padding:3px 9px; border:1.5px solid var(--blue); letter-spacing:.06em;">$0.02 USDC</span>
+          </div>
+        </div>
+        <div style="padding:28px 28px; border-right:1.5px solid var(--blue);">
+          <div style="font-size:.62rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; opacity:.4; margin-bottom:10px;">Parameter</div>
+          <div style="font-family:'SF Mono','Fira Code',monospace; font-size:.8rem; margin-bottom:10px;">
+            <span style="opacity:.5;">query: </span><span style="font-weight:700;">"your question"</span>
+          </div>
+          <p style="font-size:.78rem; line-height:1.65; opacity:.6;">Runs research + risk scoring together. Best for "should I invest in X?" questions. Returns combined report with summary and key findings.</p>
+        </div>
+        <div style="padding:24px 28px; background:var(--blue08);">
+          <div style="font-size:.62rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; opacity:.4; margin-bottom:10px;">How to call it</div>
+          <pre style="font-size:.73rem; line-height:1.75; margin-bottom:0;">"Full due diligence on
+ Uniswap V4 via Attestr"
+
+"Should I invest in
+ Aave V3? Use Attestr"
+
+"Attestr full DD:
+ GMX perpetuals"</pre>
+        </div>
+      </div>
+
+      <!-- Tool 4: check_contract_risk -->
+      <div style="display:grid; grid-template-columns:260px 1fr 1fr;">
+        <div style="padding:28px 28px; border-right:1.5px solid var(--blue); display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="font-size:.62rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; opacity:.4; margin-bottom:8px;">Tool 4</div>
+            <code style="font-family:'SF Mono','Fira Code',monospace; font-size:.82rem; font-weight:800; word-break:break-all; line-height:1.5; color:var(--blue);">check_contract_risk</code>
+          </div>
+          <div style="margin-top:16px;">
+            <span style="font-size:.7rem; font-weight:700; padding:3px 9px; border:1.5px solid var(--blue); letter-spacing:.06em;">$0.01 USDC</span>
+          </div>
+        </div>
+        <div style="padding:28px 28px; border-right:1.5px solid var(--blue);">
+          <div style="font-size:.62rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; opacity:.4; margin-bottom:10px;">Parameter</div>
+          <div style="font-family:'SF Mono','Fira Code',monospace; font-size:.8rem; margin-bottom:10px;">
+            <span style="opacity:.5;">contract_address: </span><span style="font-weight:700;">"0x..."</span>
+          </div>
+          <p style="font-size:.78rem; line-height:1.65; opacity:.6;">Any EVM contract or wallet address. Returns 0–100 risk score, source code verification, admin key status, and plain-language verdict.</p>
+        </div>
+        <div style="padding:24px 28px; background:var(--blue08);">
+          <div style="font-size:.62rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; opacity:.4; margin-bottom:10px;">How to call it</div>
+          <pre style="font-size:.73rem; line-height:1.75; margin-bottom:0;">"Check this contract with
+ Attestr: 0x833589f..."
+
+"Is 0xA0b869...E1Ab
+ safe? Run Attestr"
+
+"Attestr risk check on
+ the USDC contract"</pre>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Quick start banner -->
+    <div style="border:1.5px solid var(--blue); padding:32px 36px; display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap; background:var(--blue08);">
+      <div>
+        <div style="font-family:var(--font-display); font-weight:800; font-size:1.1rem; letter-spacing:-.02em; margin-bottom:6px;">
+          Ready to call Attestr from your AI?
+        </div>
+        <p style="font-size:.84rem; opacity:.65; max-width:480px; line-height:1.65;">
+          Add the MCP server, then just ask naturally. Claude, Claude Code, and Cursor will route to the right Attestr tool automatically.
+        </p>
+      </div>
+      <div style="display:flex; gap:12px; flex-wrap:wrap; flex-shrink:0;">
+        <a href="#mcp" class="btn btn-ghost" style="font-size:.85rem; padding:10px 20px;">View MCP config →</a>
+        <a href="https://agent.croo.network/agents/20ba0841-8411-4ee7-960e-5b1d376943d3"
+           target="_blank" rel="noreferrer" class="btn" style="font-size:.85rem; padding:10px 20px;">Try on CROO →</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="/">
+          <svg width="22" height="22" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+            <path d="M50 4 L94 96 H72 L50 40 L28 96 H6 Z" fill="#0077B6"/>
+            <path d="M42 54 L42 40 L58 40 L58 54 L66 54 L50 74 L34 54 Z" fill="#ffffff"/>
+          </svg>
+          Attestr
+        </a>
+      </div>
+      <ul class="footer-links">
+        <li><a href="#services">Services</a></li>
+        <li><a href="#integrations">Integrations</a></li>
+        <li><a href="#community">Community</a></li>
+        <li><a href="#mcp">MCP</a></li>
+        <li><a href="https://croo.network" target="_blank" rel="noreferrer">CROO</a></li>
+        <li><a href="https://base.org" target="_blank" rel="noreferrer">Base</a></li>
+      </ul>
+      <a href="https://agent.croo.network/agents/20ba0841-8411-4ee7-960e-5b1d376943d3"
+         target="_blank" rel="noreferrer" class="btn" style="padding: 9px 18px; font-size: .8rem;">
+        Try on CROO →
+      </a>
+    </div>
+
+    <!-- Sponsor logos in footer -->
+    <div class="footer-sponsors">
+      <span class="footer-sponsors-label">Ecosystem</span>
+      <div class="footer-sponsor-logos">
+        <a href="https://croo.network" target="_blank" rel="noreferrer" title="CROO Network">
+          <svg width="56" height="20" viewBox="0 0 280 104" fill="none">
+            <rect width="280" height="104" rx="6" fill="#5CB338"/>
+            <text x="140" y="72" text-anchor="middle" font-family="Arial Black, sans-serif" font-weight="900" font-size="58" fill="#000" letter-spacing="-2">CROO</text>
+          </svg>
+        </a>
+        <svg width="18" height="18" viewBox="0 0 100 100" fill="none" title="Claude" opacity=".7">
+          <g stroke="#D97757" stroke-width="13" stroke-linecap="round">
+            <line x1="50" y1="9" x2="50" y2="91"/>
+            <line x1="9" y1="30" x2="91" y2="70"/>
+            <line x1="91" y1="30" x2="9" y2="70"/>
+          </g>
+        </svg>
+        <svg width="20" height="20" viewBox="0 0 100 100" fill="none" title="Cursor" opacity=".6">
+          <polygon points="50,6 94,29 50,52 6,29" fill="#3d3d3d"/>
+          <polygon points="6,29 50,52 50,94 6,71" fill="#1a1a1a"/>
+          <polygon points="94,29 50,52 50,94 94,71" fill="#2a2a2a"/>
+        </svg>
+        <svg width="24" height="18" viewBox="0 0 180 104" fill="none" title="Hyperliquid" opacity=".75">
+          <rect x="0" y="0" width="50" height="104" rx="20" fill="#00D4C8"/>
+          <rect x="130" y="0" width="50" height="104" rx="20" fill="#00D4C8"/>
+          <rect x="0" y="37" width="180" height="30" rx="15" fill="#00D4C8"/>
+        </svg>
+        <svg width="18" height="18" viewBox="0 0 100 100" fill="none" title="Base" opacity=".6">
+          <circle cx="50" cy="50" r="46" fill="#0052ff"/>
+          <circle cx="50" cy="50" r="24" fill="#fff"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="footer-copy">
+      <span>© 2025 Attestr · Built on Base mainnet · Powered by CROO Agent Protocol</span>
+      <span>CAP · MCP · USDC · Base</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,29 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Times New Roman', Times, serif;
+  background: #000;
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection { background: #6EE04A; color: #000; }
+
+@keyframes float  { 0%,100%{transform:translateY(0)}  50%{transform:translateY(-10px)} }
+@keyframes float2 { 0%,100%{transform:translateY(0)}  50%{transform:translateY(-8px)}  }
+@keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+@keyframes pulse  { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+@keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+.float  { animation: float  5s ease-in-out infinite; }
+.float2 { animation: float2 7s ease-in-out infinite 1s; }
+.fade-up   { animation: fadeUp .6s ease both; }
+.fade-up-1 { animation: fadeUp .6s .1s ease both; }
+.fade-up-2 { animation: fadeUp .6s .2s ease both; }
+.fade-up-3 { animation: fadeUp .6s .3s ease both; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #000; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }

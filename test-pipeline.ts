@@ -8,7 +8,7 @@
  *
  * Run:  npx ts-node --transpile-only test-pipeline.ts
  */
-import 'dotenv/config';
+import dotenv from 'dotenv'; dotenv.config({ override: true });
 import type {
   Finding,
   WebResearchResult,
