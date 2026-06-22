@@ -1,6 +1,6 @@
 import dotenv from 'dotenv'; dotenv.config({ override: true });
 import http from 'http';
-import { randomUUID } from 'crypto';
+import { randomBytes, timingSafeEqual } from 'crypto';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import {
@@ -435,10 +435,55 @@ function getApiKey(): string {
   return requireEnv('MCP_API_KEY');
 }
 
+// Short-lived single-use auth codes: code → { expiresAt, used }
+interface AuthCodeEntry { expiresAt: number; used: boolean }
+const authCodes = new Map<string, AuthCodeEntry>();
+
+function generateAuthCode(): string {
+  const code = randomBytes(32).toString('base64url');
+  authCodes.set(code, { expiresAt: Date.now() + 60_000, used: false });
+  // Prune expired entries
+  for (const [k, v] of authCodes) if (v.expiresAt < Date.now()) authCodes.delete(k);
+  return code;
+}
+
+function consumeAuthCode(code: string): boolean {
+  const entry = authCodes.get(code);
+  if (!entry || entry.used || entry.expiresAt < Date.now()) {
+    authCodes.delete(code);
+    return false;
+  }
+  authCodes.delete(code);
+  return true;
+}
+
+// Constant-time string comparison — returns false on length mismatch without comparing
+function safeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(Buffer.from(a), Buffer.from(b));
+}
+
+// Validate redirect_uri: exact match against OAUTH_REDIRECT_URI allowlist, or require https
+function validateRedirectUri(uri: string): boolean {
+  try {
+    const u = new URL(uri);
+    const allowed = process.env.OAUTH_REDIRECT_URI;
+    if (allowed) {
+      const a = new URL(allowed);
+      return u.protocol === a.protocol && u.host === a.host && u.pathname === a.pathname;
+    }
+    // No allowlist: require https; allow http for localhost only
+    if (u.protocol === 'https:') return true;
+    if (u.protocol === 'http:' && (u.hostname === 'localhost' || u.hostname === '127.0.0.1')) return true;
+    return false;
+  } catch { return false; }
+}
+
 function validateBearer(req: http.IncomingMessage): boolean {
   const auth = req.headers['authorization'] ?? '';
   const [scheme, token] = auth.split(' ');
-  return scheme === 'Bearer' && token === getApiKey();
+  if (scheme !== 'Bearer' || !token) return false;
+  return safeEqual(token, getApiKey());
 }
 
 function readBody(req: http.IncomingMessage): Promise<string> {
@@ -499,6 +544,10 @@ async function handleRequest(req: http.IncomingMessage, res: http.ServerResponse
     const redirectUri = url.searchParams.get('redirect_uri') ?? '';
     const state = url.searchParams.get('state') ?? '';
     const clientId = url.searchParams.get('client_id') ?? '';
+    if (!validateRedirectUri(redirectUri)) {
+      html(res, 400, '<h1>Invalid redirect_uri</h1><p>The redirect URI is not permitted.</p>');
+      return;
+    }
     html(res, 200, `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -546,14 +595,21 @@ async function handleRequest(req: http.IncomingMessage, res: http.ServerResponse
     const redirectUri = decodeURIComponent(params.get('redirect_uri') ?? '');
     const state = decodeURIComponent(params.get('state') ?? '');
 
-    if (apiKey !== getApiKey()) {
+    // Validate redirect_uri before credential check to avoid oracle leakage
+    if (!validateRedirectUri(redirectUri)) {
+      html(res, 400, '<h1>Invalid redirect_uri</h1><p>The redirect URI is not permitted.</p>');
+      return;
+    }
+
+    if (!safeEqual(apiKey, getApiKey())) {
       html(res, 401, '<h1>Invalid API key</h1><p>Go back and try again.</p>');
       return;
     }
 
-    // Use the API key as the authorization code
+    // Issue a short-lived opaque code — NOT the raw API key
+    const code = generateAuthCode();
     const redirectUrl = new URL(redirectUri);
-    redirectUrl.searchParams.set('code', apiKey);
+    redirectUrl.searchParams.set('code', code);
     if (state) redirectUrl.searchParams.set('state', state);
     res.writeHead(302, { Location: redirectUrl.toString() });
     res.end();
@@ -565,15 +621,15 @@ async function handleRequest(req: http.IncomingMessage, res: http.ServerResponse
     const body = await readBody(req);
     const params = new URLSearchParams(body);
     const grantType = params.get('grant_type');
-    const code = params.get('code');
+    const code = params.get('code') ?? '';
 
-    if (grantType !== 'authorization_code' || code !== getApiKey()) {
-      json(res, 400, { error: 'invalid_grant', error_description: 'Invalid code or grant type' });
+    if (grantType !== 'authorization_code' || !consumeAuthCode(code)) {
+      json(res, 400, { error: 'invalid_grant', error_description: 'Invalid or expired authorization code' });
       return;
     }
 
     json(res, 200, {
-      access_token: code,
+      access_token: getApiKey(),
       token_type: 'bearer',
       expires_in: 86400,
       scope: 'mcp',
