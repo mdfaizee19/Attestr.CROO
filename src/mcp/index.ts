@@ -530,11 +530,30 @@ async function handleRequest(req: http.IncomingMessage, res: http.ServerResponse
       issuer: SERVER_URL,
       authorization_endpoint: `${SERVER_URL}/oauth/authorize`,
       token_endpoint: `${SERVER_URL}/oauth/token`,
+      registration_endpoint: `${SERVER_URL}/oauth/register`,
       response_types_supported: ['code'],
       grant_types_supported: ['authorization_code'],
       token_endpoint_auth_methods_supported: ['none'],
       scopes_supported: ['mcp'],
       code_challenge_methods_supported: ['S256', 'plain'],
+    });
+    return;
+  }
+
+  // ── RFC 7591 dynamic client registration ─────────────────────────────────
+  if (path === '/oauth/register' && method === 'POST') {
+    const body = await readBody(req);
+    let redirectUris: string[] = [];
+    try {
+      const parsed = JSON.parse(body) as { redirect_uris?: string[] };
+      redirectUris = Array.isArray(parsed.redirect_uris) ? parsed.redirect_uris : [];
+    } catch { /* ignore malformed body */ }
+    json(res, 201, {
+      client_id: 'claude-ai-client',
+      client_secret: 'not-required',
+      redirect_uris: redirectUris,
+      grant_types: ['authorization_code'],
+      token_endpoint_auth_method: 'none',
     });
     return;
   }
