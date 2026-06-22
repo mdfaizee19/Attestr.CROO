@@ -14,9 +14,7 @@ const SERVER_URL = (process.env.SERVER_URL ?? `http://localhost:${PORT}`).replac
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function requireEnv(name: string): string {
-  const val = process.env[name];
-  if (!val) throw new Error(`Missing env var: ${name}`);
-  return val;
+  return process.env[name] ?? '';
 }
 
 function extractJson(text: string): string {
@@ -662,8 +660,8 @@ async function handleRequest(req: http.IncomingMessage, res: http.ServerResponse
     return;
   }
 
-  // ── Health check ──────────────────────────────────────────────────────────
-  if (path === '/health') {
+  // ── Health check / root ───────────────────────────────────────────────────
+  if (path === '/' || path === '/health') {
     json(res, 200, { status: 'ok', server: 'attestr-mcp', version: '1.0.0' });
     return;
   }
@@ -675,10 +673,6 @@ async function handleRequest(req: http.IncomingMessage, res: http.ServerResponse
 // ── Start HTTP server ─────────────────────────────────────────────────────────
 
 async function main() {
-  // Validate required env vars on startup
-  requireEnv('MCP_API_KEY');
-  requireEnv('GROQ_API_KEY');
-
   const httpServer = http.createServer((req, res) => {
     handleRequest(req, res).catch((err) => {
       process.stderr.write(`[attestr-mcp] request error: ${err}\n`);
@@ -689,7 +683,7 @@ async function main() {
     });
   });
 
-  httpServer.listen(PORT, () => {
+  httpServer.listen(PORT, '0.0.0.0', () => {
     process.stderr.write(`[attestr-mcp] HTTP server listening on port ${PORT}\n`);
     process.stderr.write(`[attestr-mcp] MCP endpoint:    ${SERVER_URL}/mcp\n`);
     process.stderr.write(`[attestr-mcp] OAuth metadata:  ${SERVER_URL}/.well-known/oauth-authorization-server\n`);
